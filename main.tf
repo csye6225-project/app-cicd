@@ -1,3 +1,7 @@
+data "aws_iam_policy" "cloud_watch_agent" {
+  name = "CloudWatchAgentServerPolicy"
+}
+
 resource "aws_iam_policy" "cd_ec2_s3_policy" {
   name        = "CodeDeploy-EC2-S3"
   description = "CodeDeploy-EC2-S3 Policy for the Server (EC2)"
@@ -56,8 +60,8 @@ resource "aws_iam_policy" "gh_cd_dp_policy" {
 }
 
 resource "aws_iam_role" "cdes_role" {
-  name                = "CodeDeployEC2ServiceRole"
-  managed_policy_arns = [aws_iam_policy.cd_ec2_s3_policy.arn]
+  name                  = "CodeDeployEC2ServiceRole"
+  managed_policy_arns   = [aws_iam_policy.cd_ec2_s3_policy.arn, data.aws_iam_policy.cloud_watch_agent.arn]
   force_detach_policies = true
   assume_role_policy = jsonencode({
     "Version" : "2012-10-17",
@@ -74,7 +78,7 @@ resource "aws_iam_role" "cdes_role" {
 }
 
 resource "aws_iam_role" "cds_role" {
-  name = "CodeDeployServiceRole"
+  name                = "CodeDeployServiceRole"
   managed_policy_arns = ["arn:aws:iam::aws:policy/service-role/AWSCodeDeployRole"]
 
   assume_role_policy = jsonencode({
